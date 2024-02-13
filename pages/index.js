@@ -17,6 +17,7 @@ export default function Home() {
   const captureCamera = async () => {
     const file = await camera.captureImageAsFile()
     const imageUrl = URL.createObjectURL(file);
+    console.log('full response imageURL', file);
     console.log('imageURL', imageUrl);
     setImages(imageUrl)
   }
