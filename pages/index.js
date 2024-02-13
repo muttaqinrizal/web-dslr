@@ -30,6 +30,14 @@ export default function Home() {
     const ops = await camera.getSupportedOps();
     console.log("Supported Ops:", ops);
   }
+
+  const capturePreviewAsBlob = async() => {
+    // Capture a frame while in live view mode
+    const blob = await camera.capturePreviewAsBlob();
+    const imageUrl = URL.createObjectURL(blob);
+    console.log('preview blob', imageUrl)
+    // Set the imageUrl as the src of an image element in your HTML
+  }
   
   return (
     <main
@@ -37,7 +45,8 @@ export default function Home() {
     >
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
         <button onClick={() => connectCamera()}>Pilih Kamera</button>
-        <button onClick={() => captureCamera()}>Capture Kamera</button>
+        <button onClick={() => captureCamera()}>Capture Kamera as File</button>
+        <button onClick={() => capturePreviewAsBlob()}>Capture Kamera as Blob</button>
         <button onClick={() => getCameraConfig()}>Kamera Konfig</button>
         <button onClick={() => getSupportedOps()}>Kamera Support</button>
       </div>
