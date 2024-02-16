@@ -1,12 +1,16 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import { Camera } from "web-gphoto2";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const [images, setImages] = useState(null)
+  const [status, setStatus] = useState("")
+  const [message, setMessage] = useState("")
+  const [type, setType] = useState("")
+
   const camera = new Camera();
 
   const connectCamera = async () => {
@@ -25,12 +29,53 @@ export default function Home() {
     console.log('full response imageURL', file);
     console.log('imageURL', imageUrl);
     setImages(imageUrl)
-    
   }
 
-  const getCameraConfig = async() => {
+  const getCameraConfig = async () => {
     const config = await camera.getConfig();
     console.log("Config:", config);
+  }
+
+  useEffect(() => {
+    addEventListener('error', ({ message }) => {
+      setType("Status")
+      setMessage(message)
+    });
+
+    addEventListener(
+      'beforeunload',
+      () => {
+        if (!this.camera) return;
+        this.camera.disconnect();
+        this.camera = undefined;
+      },
+      { once: true }
+    );
+    setType("Status")
+    setMessage("Loading")
+    tryToConnectToCamera()
+  }, [])
+
+  const tryToConnectToCamera = async () => {
+    let camera;
+    try {
+      camera = new Camera();
+      await camera.connect();
+    } catch (e) {
+      console.warn(e);
+      setType("CameraPicker")
+      return;
+    }
+    this.camera = camera;
+    let supportedOps = await camera.getSupportedOps();
+    let capturePreview;
+    if (supportedOps.capturePreview) {
+      capturePreview = () => camera.capturePreviewAsBlob();
+    }
+    let triggerCapture;
+    if (supportedOps.captureImage) {
+      triggerCapture = () => camera.captureImageAsFile();
+    }
   }
 
   const getSupportedOps = async () => {
@@ -38,14 +83,14 @@ export default function Home() {
     console.log("Supported Ops:", ops);
   }
 
-  const capturePreviewAsBlob = async() => {
+  const capturePreviewAsBlob = async () => {
     // Capture a frame while in live view mode
     const blob = await camera.capturePreviewAsBlob();
     const imageUrl = URL.createObjectURL(blob);
     console.log('preview blob', imageUrl)
     // Set the imageUrl as the src of an image element in your HTML
   }
-  
+
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
