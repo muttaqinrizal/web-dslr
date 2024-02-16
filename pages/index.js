@@ -10,6 +10,7 @@ export default function Home() {
   const [status, setStatus] = useState("")
   const [message, setMessage] = useState("")
   const [type, setType] = useState("")
+  const [connected, setConnected] = useState(false)
 
   const camera = new Camera();
 
@@ -37,33 +38,19 @@ export default function Home() {
   }
 
   useEffect(() => {
-    addEventListener('error', ({ message }) => {
-      setType("Status")
-      setMessage(message)
-    });
-
-    addEventListener(
-      'beforeunload',
-      () => {
-        if (!this.camera) return;
-        this.camera.disconnect();
-        this.camera = undefined;
-      },
-      { once: true }
-    );
-    setType("Status")
-    setMessage("Loading")
-    tryToConnectToCamera()
-  }, [])
+    if (connected) {
+      tryToConnectToCamera()
+    }
+  }, [connected])
 
   const tryToConnectToCamera = async () => {
     let camera;
     try {
       camera = new Camera();
       await camera.connect();
+      setConnected(true)
     } catch (e) {
-      console.warn(e);
-      setType("CameraPicker")
+      console.log(e);
       return;
     }
     this.camera = camera;
