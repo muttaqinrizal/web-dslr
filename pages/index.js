@@ -41,7 +41,7 @@ export default function Home() {
     if (connected) {
       tryToConnectToCamera()
     }
-  }, [connected])
+  }, [])
 
   const tryToConnectToCamera = async () => {
     let camera;
